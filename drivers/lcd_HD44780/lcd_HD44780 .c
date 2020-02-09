@@ -11,10 +11,11 @@
 
 /* Private macro -------------------------------------------------------------*/
 //управлене дисплеем
-#define LCD_RS_LOW()      (LCD_RS_GPIO_PORT->BSRR = (uint32_t)LCD_RS_PIN << 16U)
-#define LCD_RS_HIGH()     (LCD_RS_GPIO_PORT->BSRR = LCD_RS_PIN)
-#define LCD_E_LOW()       (LCD_E_GPIO_PORT->BSRR = (uint32_t)LCD_E_PIN << 16U)
-#define LCD_E_HIGH()      (LCD_E_GPIO_PORT->BSRR = LCD_E_PIN)
+#define LCD_RS_LOW()        (LCD_RS_GPIO_PORT->BSRR = (uint32_t)LCD_RS_PIN << 16U)
+#define LCD_RS_HIGH()       (LCD_RS_GPIO_PORT->BSRR = LCD_RS_PIN)
+#define LCD_E_LOW()         (LCD_E_GPIO_PORT->BSRR = (uint32_t)LCD_E_PIN << 16U)
+#define LCD_E_HIGH()        (LCD_E_GPIO_PORT->BSRR = LCD_E_PIN)
+#define LCD_DATA_SET(_data) (LCD_DATA_GPIO_PORT->BSRR = ((uint32_t)(~_data & LCD_PIN_MASK) << 16U) | _data)
 
 //маска пинов
 #if defined (LCD_DATA_BUS_8_BIT)
@@ -52,7 +53,7 @@ static void send_byte(uint8_t data)
   if(data & 0x04) data_set |= LCD_DB2_PIN;
   if(data & 0x02) data_set |= LCD_DB1_PIN;
   if(data & 0x01) data_set |= LCD_DB0_PIN;
-  LCD_DATA_GPIO_PORT->BSRR = ((uint32_t)(~data_set & LCD_PIN_MASK) << 16U) | data_set;
+  LCD_DATA_SET(data_set);
   Delay_us(1);
   LCD_E_LOW();
 }
@@ -73,7 +74,7 @@ static void send_halfbyte(uint8_t data)
   if(data & 0x20) data_set |= LCD_DB5_PIN;
   if(data & 0x10) data_set |= LCD_DB4_PIN;
   // одной командой сбрасываем и выставляем на порту нужные биты
-  LCD_DATA_GPIO_PORT->BSRR = ((uint32_t)(~data_set & LCD_PIN_MASK) << 16U) | data_set;
+  LCD_DATA_SET(data_set);
   Delay_us(1);
   LCD_E_LOW();
   Delay_us(1);
